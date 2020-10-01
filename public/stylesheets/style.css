@@ -1,0 +1,108 @@
+body {
+  background-image:url('https://images.pexels.com/photos/1242348/pexels-photo-1242348.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260.jpeg');
+  background-repeat:no-repeat;
+  background-attachment:fixed;
+  background-size:100% 100%;
+  padding:50px;
+  font:14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+h1 {
+  font-family:Quicksand; 
+  font-style:normal; 
+  font-variant:normal; 
+  font-weight:400;
+  color:#fb9e25;
+  text-shadow:0px 1px 0px #cc9f52;
+  line-height:20px;
+}
+
+h1.trending {
+  font-size:40px;
+}
+
+h1.index {
+  font-size:70px;
+  position:absolute;
+  left:50%;
+  top:250px;
+  -webkit-transform:translate(-50%, -50%);
+  transform:translate(-50%, -50%);
+}
+
+h2 {
+  font-family:Quicksand;
+  font-size:16px;
+}
+
+p {
+  font-family:Quicksand;
+  font-size:12px;
+}
+
+.item {
+  margin:20px 0;
+}
+
+.item.index {
+  position:absolute;
+  left:50%;
+  top:450px;
+  -webkit-transform:translate(-50%, -50%);
+  transform:translate(-50%, -50%);
+}
+
+button {
+  box-shadow:inset 0px 1px 0px 0px #fce2c1;
+	background:linear-gradient(to bottom, #ffc477 5%, #fb9e25 100%);
+  background-color:#ffc477;	
+	border-radius:6px;
+	border:1px solid #eeb44f;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Quicksand;
+	/* font-weight:bold; */
+	text-decoration:none;
+  text-shadow:0px 1px 0px #cc9f52;
+}
+
+button.news {
+  padding:4px 8px;
+}
+
+button.pics {
+  padding:4px 8px;
+}
+
+button.index {
+  padding:16px 60px;
+}
+
+button:hover {
+  background:linear-gradient(to bottom, #fb9e25 5%, #ffc477 100%);
+	background-color:#fb9e25;
+}
+
+input[type=text] {
+  background-color:transparent;
+  -moz-border-radius:5px;
+  border-radius:5px;
+  border:solid 1px #fb9e25;
+  width:500px;
+  height:44px;
+  font-size:1.2em;
+}
+
+input::placeholder {
+  font-family:Quicksand;
+  font-size:1.2em;
+  font-style:italic;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline:none;
+}
