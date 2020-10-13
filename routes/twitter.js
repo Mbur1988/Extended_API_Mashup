@@ -1,3 +1,4 @@
+const createError = require('http-errors');
 const express = require('express');
 const router = express.Router();
 const twit = require('twit');
@@ -46,12 +47,19 @@ router.get('/:query', (req, res) => {
   T.get('geo/search', params) // Query Twitter API to get coordinates for the entered location
 
     .then(result => {
-      let params = { // Set params
-        lat: result.data.result.places[0].centroid[1], // Extract latitude from result data
-        long: result.data.result.places[0].centroid[0] // Extract longditude from result data
-      }
-      return T.get('trends/closest', params) // Query Twitter API to get closest location that trending data is available for
+      if(result.data.result.places.length > 0) {
 
+        let params = { // Set params
+          lat: result.data.result.places[0].centroid[1], // Extract latitude from result data
+          long: result.data.result.places[0].centroid[0] // Extract longditude from result data
+        }
+        return T.get('trends/closest', params) // Query Twitter API to get closest location that trending data is available for
+      }
+      else {
+        res.redirect('/!')
+        throw new Error('Location not recognised')        
+        }
+    
     }).then(result => {
       let params = { // Set params
         id: result.data[0].woeid, // Extract woeid from result data
@@ -60,11 +68,15 @@ router.get('/:query', (req, res) => {
       return T.get('trends/place', params) // Query Twitter API to get the top trends closest to the entered location
 
     }).then(result => {
-      const top10Trends = []
-      for (let i = 0; i < 10; i++) {
-        top10Trends.push(result.data[0].trends[i].name) // Extract the top 10 of the returned trends
+      let numTrends = 10
+      if (result.data[0].trends.length < 10) {
+        numTrends = result.data[0].trends.length
       }
-      return top10Trends; // return the top 10 trends
+      const topTrends = []
+      for (let i = 0; i < numTrends; i++) {
+        topTrends.push(result.data[0].trends[i].name) // Extract the top 10 of the returned trends
+      }
+      return topTrends; // return the top 10 trends
 
     }).then(result => {
       res.render("trending", {  // Render the trending page

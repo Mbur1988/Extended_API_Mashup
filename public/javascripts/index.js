@@ -1,6 +1,6 @@
 // Navigate to trending route when event triggered
 const go = (event) => {
-    window.location.href = window.location.href + 'trending/' + input.value;
+  window.location.href = window.location.origin + '/trending/' + input.value;
 }
 
 // Add event listners to the search button and link enter key press

@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  h1.trending Top 10 Trends in #{location}
+  h1.trending Top #{trending.length} Trends in #{location}
   p Click corresponding buttons to view either images or news articles related to each trend. 
   each trend in trending
       .item
