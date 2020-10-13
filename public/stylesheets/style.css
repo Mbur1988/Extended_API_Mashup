@@ -88,8 +88,8 @@ input[type=text] {
   background-color:transparent;
   -moz-border-radius:5px;
   border-radius:5px;
-  border:solid 1px #fb9e25;
-  width:500px;
+  border:solid 2px #fb9e25;
+  width:450px;
   height:44px;
   font-size:1.2em;
 }
@@ -105,4 +105,26 @@ select:focus,
 textarea:focus,
 button:focus {
     outline:none;
+}
+
+.shadowbox {
+  position:absolute;
+  left:50%;
+  top:600px;
+  -webkit-transform:translate(-50%, -50%);
+  transform:translate(-50%, -50%);
+  height:100px;
+  width: 600px;
+  overflow:auto;
+  -moz-border-radius:5px;
+  border-radius:5px;
+  border:solid 2px #fb9e25;
+  box-shadow: 8px 8px 5px #633e0e;
+  padding: 0px 0px;
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.body {
+  height: 100px;
+  overflow: auto
 }

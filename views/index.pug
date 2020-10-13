@@ -1,11 +1,18 @@
 extends layout
 
 block content
+
   h1.index Trend/Bing
   .item(class='index')
     input(type='text' name='q' placeholder=' Enter location..').input
     button(id='Search' class='index').search Search
     if (locError)
       p(style={color: 'red'}) Location not recognised!
-
+  div(class="shadowbox")
+    ol
+      for entry in list.reverse()
+        - var url = entry.Key.toString();
+        li
+          a(href='/trending/s3get/' + url) #{entry.Key} 
+  
   script(src='/javascripts/index.js')

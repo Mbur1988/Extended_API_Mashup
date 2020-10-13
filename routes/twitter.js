@@ -1,7 +1,18 @@
 const createError = require('http-errors');
 const express = require('express');
-const router = express.Router();
 const twit = require('twit');
+const AWS = require('aws-sdk');
+const router = express.Router();
+
+// Configure the AWS environment
+AWS.config.update({
+  accessKeyId: 'AKIA5DYSEEJ4UZUKTYXR',
+  secretAccessKey: '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'
+});
+
+// Create AWS S3 varaibles
+const s3 = new AWS.S3();
+const bucket = 'n9801154-trendbing-bucket1';
 
 // Set Twitter API credentials
 const apiKey = 'JiZw0LDxyItpT9RowC0LjUUxU';
@@ -19,6 +30,7 @@ const T = new twit({
 
 // Trends route handler for blank input
 router.get('/', function (req, res, next) {
+  console.log('Test!!!!');
   let params = { id: 1, exclude: 'hashtags' } // Set params
   return T.get('trends/place', params) // Query Twitter API to get the top trends worldwide
 
@@ -68,6 +80,23 @@ router.get('/:query', (req, res) => {
       return T.get('trends/place', params) // Query Twitter API to get the top trends closest to the entered location
 
     }).then(result => {
+      // Configure S3 parameters
+      var params = {
+        Bucket: bucket,
+        Key : result.data[0].as_of,
+        Body : JSON.stringify(result)
+      };
+      // Upload twitter trends to S3 bucket
+      s3.upload(params, function (err, data) {
+        //handle error
+        if (err) {
+          console.log("Error", err);
+        }
+        //success
+        if (data) {
+          console.log("Uploaded in:", data.Location);
+        }
+      });
       let numTrends = 10
       if (result.data[0].trends.length < 10) {
         numTrends = result.data[0].trends.length
@@ -88,6 +117,34 @@ router.get('/:query', (req, res) => {
     }).catch(function (err) { // catch any errors
       console.log('caught error', err.stack)
     })
+});
+
+router.get('/s3get/:query', (req, res) => {
+  let params = {
+    Bucket: bucket,
+    Key: req.params.query
+  };
+  s3.getObject(params).promise()
+  .then(data => {
+    const result = JSON.parse(data.Body);
+    //res.json(result);
+    let numTrends = 10
+    if (result.data[0].trends.length < 10) {
+      numTrends = result.data[0].trends.length
+    }
+    const topTrends = []
+    for (let i = 0; i < numTrends; i++) {
+      topTrends.push(result.data[0].trends[i].name) // Extract the top 10 of the returned trends
+    }
+    return topTrends; // return the top 10 trends
+
+  }).then(result => {
+    res.render("trending", {  // Render the trending page
+      trending: result,
+      title: 'Trending in ' + req.params.query,
+      location: req.params.query
+    });
+  });
 });
 
 module.exports = router;
