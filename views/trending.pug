@@ -1,14 +1,17 @@
 extends layout
 
 block content
-  h1.trending Top #{trending.length} Trends for #{location}
-  p Click corresponding buttons to view either images or news articles related to each trend. 
-  each trend in trending
-      .item
-        h2 ##{trend} 
-          button.news News
-          | 
-          button.pics Pics
+  div(class="transparent")
+    h1.trending Top #{trending.length} Trends for #{location}
+    p Click corresponding buttons to view either images or news articles related to each trend. 
+    each trend in trending
+        .item
+          h2 ##{trend} 
+            button.news News
+            | 
+            button.pics Pics
+  div(class="shadowbox trending")
+    ol
 
   script(src='/javascripts/trending.js')
   

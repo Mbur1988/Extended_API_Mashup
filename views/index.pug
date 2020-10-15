@@ -8,7 +8,7 @@ block content
     button(id='Search' class='index').search Search
     if (locError)
       p(style={color: 'red'}) Location not recognised!
-  div(class="shadowbox")
+  div(class="shadowbox index")
     ol
       for entry in list.reverse()
         - var url = entry.Key.toString();
