@@ -130,7 +130,7 @@ button:focus {
 
 .shadowbox.trending {
   left:50%;
-  top:5%;
+  /* top:5%; */
   height:90%;
   width: 45%;
   -webkit-transform:translate(0%, 0%);
