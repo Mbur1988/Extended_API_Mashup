@@ -2,7 +2,8 @@
 const fetcher = (event) => {
   const name = event.target.className; // button type
   const trend = event.target.parentElement.firstChild.textContent.substring(1); // parent trend
-  fetch(`/trending/${name}/${trend}`) // fetch requested data from Bing API
+  const amount = event.path[1].childNodes[5].value; // amount of results to fetch
+  fetch(`/trending/${name}/${trend}/${amount}`) // fetch requested data from Bing API
     .then((res) => res.json()).then((data) => {
       let canvas = event.path[4].childNodes[1];
       // if data is already being displayed on canvas then remove it first
