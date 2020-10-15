@@ -81,9 +81,25 @@ router.get('/:query', (req, res) => {
 
     }).then(result => {
       // Configure S3 parameters
+      console.log(result.data[0].locations[0].name);  //request location
+
+      //setting up key
+      var today = new Date();
+      var ss = String(today.getSeconds());
+      var mm = String(today.getMinutes);
+      var hh = String(today.getHours());
+      var dd = String(today.getDate()).padStart(2, '0');
+      var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+      var yyyy = today.getFullYear();
+      
+      today = yyyy + ' ' + mm + ' ' + dd + ' ' + hh + ' ' + mm + ' ' + ss;
+      var LocationOfSearch = result.data[0].locations[0].name;
+      console.log(result.data[0].trends);
+      s3Key = today +" " + LocationOfSearch;
       var params = {
         Bucket: bucket,
-        Key : result.data[0].as_of,
+        //Key : result.data[0].as_of, //This is the original 
+        Key : s3Key,
         Body : JSON.stringify(result)
       };
       // Upload twitter trends to S3 bucket

@@ -13,9 +13,12 @@ const s3 = new AWS.S3();
 const bucket = 'n9801154-trendbing-bucket1';
 
 async function listKeys(res, bool) {
-  let params = { Bucket: bucket };    
+  let params = { Bucket: bucket };
+
   try {
     const data = await s3.listObjects(params).promise();
+    var names = data.Contents;
+//
     res.render('index', { title: 'Trend/Bing', list: data.Contents, locError: bool}); // Render the index page    
   } catch(error) {
     throw error;
