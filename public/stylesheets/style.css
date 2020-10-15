@@ -115,7 +115,6 @@ button:focus {
   border-radius:5px;
   border:solid 2px #fb9e25;
   box-shadow: 8px 8px 5px #473e32;
-  padding: 0px 0px;
   background-color: rgba(0, 0, 0, 0);
 }
 
@@ -126,6 +125,7 @@ button:focus {
   width: 600px;
   -webkit-transform:translate(-50%, -50%);
   transform:translate(-50%, -50%);
+  padding: 0px 0px;
 }
 
 .shadowbox.trending {
@@ -135,9 +135,10 @@ button:focus {
   width: 45%;
   -webkit-transform:translate(0%, 0%);
   transform:translate(0%, 0%);
+  padding: 10px 10px;
 }
 
-.transparent{
+.clearbox{
   position:absolute;  
   border:none;
   padding: 0px 0px;
@@ -146,6 +147,27 @@ button:focus {
   top:5%;
   height:90%;
   width: 40%;
+}
+
+select {
+  box-shadow:inset 0px 1px 0px 0px #fce2c1;
+	background:linear-gradient(to bottom, #ffc477 5%, #fb9e25 100%);
+  background-color:#ffc477;	
+	border-radius:6px;
+	border:1px solid #eeb44f;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Quicksand;
+	/* font-weight:bold; */
+	text-decoration:none;
+  text-shadow:0px 1px 0px #cc9f52;
+  padding: 4px 8px;
+}
+
+select:hover {
+  background:linear-gradient(to bottom, #fb9e25 5%, #ffc477 100%);
+	background-color:#ffc477;
 }
 
 .body {
