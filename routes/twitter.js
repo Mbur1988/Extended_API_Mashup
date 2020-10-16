@@ -30,7 +30,6 @@ const T = new twit({
 
 // Trends route handler for blank input
 router.get('/', function (req, res, next) {
-  console.log('Test!!!!');
   let params = { id: 1, exclude: 'hashtags' } // Set params
   return T.get('trends/place', params) // Query Twitter API to get the top trends worldwide
 
@@ -80,9 +79,6 @@ router.get('/:query', (req, res) => {
       return T.get('trends/place', params) // Query Twitter API to get the top trends closest to the entered location
 
     }).then(result => {
-      // Configure S3 parameters
-      console.log(result.data[0].locations[0].name);  //request location
-
       //setting up key
       var today = new Date();
       var ss = String(today.getSeconds());
@@ -92,13 +88,13 @@ router.get('/:query', (req, res) => {
       var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
       var yyyy = today.getFullYear();
       
-      today = yyyy + ' ' + mm + ' ' + dd + ' ' + hh + ' ' + mm + ' ' + ss;
+      today = yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + mm + ':' + ss;
       var LocationOfSearch = result.data[0].locations[0].name;
-      console.log(result.data[0].trends);
       s3Key = today +" " + LocationOfSearch;
+      
+      // Configure S3 parameters
       var params = {
         Bucket: bucket,
-        //Key : result.data[0].as_of, //This is the original 
         Key : s3Key,
         Body : JSON.stringify(result)
       };

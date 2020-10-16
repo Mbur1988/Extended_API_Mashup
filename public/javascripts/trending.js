@@ -14,7 +14,7 @@ const fetcher = (event) => {
       }
       let h1 = document.createElement("h1");
       h1.className = "trending";
-      h1.textContent = `Displaying ${name} related to " ${trend}"`;
+      h1.textContent = `Displaying ${name} related to "${trend}"`;
       canvas.append(h1);
       // display news if news button was pressed
       if (name == "news") { // check if button press was news
