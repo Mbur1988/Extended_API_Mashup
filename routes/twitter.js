@@ -14,19 +14,60 @@ AWS.config.update({
 const s3 = new AWS.S3();
 const bucket = 'n9801154-trendbing-bucket1';
 
-// Set Twitter API credentials
-const apiKey = 'JiZw0LDxyItpT9RowC0LjUUxU';
-const apiSecretKey = 'QOFXRDziLsysKNW6CZsP5huiVrUTO6WQKyji87chDkDy7A7VUJ';
-const accessToken = '1295958893827223557-97diUVsv3TgLcW304pR5CEBEkE1Cdq';
-const accessTokenSecret = 'RiSn6jXAi0WA9NHJCxmYM8bNnFYdQJLTPgGqnCFlERfnp';
-
 // Configure twit package with Twitter API credentials
 const T = new twit({
-  consumer_key: apiKey,
-  consumer_secret: apiSecretKey,
-  access_token: accessToken,
-  access_token_secret: accessTokenSecret
+  consumer_key: 'JiZw0LDxyItpT9RowC0LjUUxU',
+  consumer_secret: 'QOFXRDziLsysKNW6CZsP5huiVrUTO6WQKyji87chDkDy7A7VUJ',
+  access_token: '1295958893827223557-97diUVsv3TgLcW304pR5CEBEkE1Cdq',
+  access_token_secret: 'RiSn6jXAi0WA9NHJCxmYM8bNnFYdQJLTPgGqnCFlERfnp'
 })
+
+// Extracts the top trends from the result
+function getTopTrends(result) {
+  let numTrends = 10
+  if (result.data[0].trends.length < 10) {
+    numTrends = result.data[0].trends.length
+  }
+  const topTrends = []
+  for (let i = 0; i < numTrends; i++) {
+    topTrends.push(result.data[0].trends[i].name) // Extract the top 10 of the returned trends
+  }
+  return topTrends; // return the top 10 trends
+}
+
+// Add entry to S3 storage
+function addS3(result) {
+  //setting up key
+  let date = new Date();
+  let sec = String(date.getSeconds()).padStart(2, '0');
+  let min = String(date.getMinutes()).padStart(2, '0');
+  let hour = String(date.getHours()).padStart(2, '0');
+  let day = String(date.getDate()).padStart(2, '0');
+  let month = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+  let year = String(date.getFullYear()).padStart(2, '0');
+  
+  let today = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
+  var LocationOfSearch = result.data[0].locations[0].name;
+  s3Key = today +" " + LocationOfSearch;
+  
+  // Configure S3 parameters
+  var params = {
+    Bucket: bucket,
+    Key : s3Key,
+    Body : JSON.stringify(result)
+  };
+  // Upload twitter trends to S3 bucket
+  s3.upload(params, function (err, data) {
+    //handle error
+    if (err) {
+      console.log("Error", err);
+    }
+    //success
+    if (data) {
+      console.log("Uploaded in:", data.Location);
+    }
+  });
+}
 
 // Trends route handler for blank input
 router.get('/', function (req, res, next) {
@@ -34,11 +75,9 @@ router.get('/', function (req, res, next) {
   return T.get('trends/place', params) // Query Twitter API to get the top trends worldwide
 
     .then(result => {
-      const top10Trends = []
-      for (let i = 0; i < 10; i++) {
-        top10Trends.push(result.data[0].trends[i].name) // Extract the top 10 of the returned trends
-      }
-      return top10Trends; // return the top 10 trends
+      addS3(result);
+      topTrends = getTopTrends(result);
+      return topTrends; // return the top 10 trends
 
     }).then(result => { // Render the trending page
       res.render("trending", {
@@ -79,44 +118,8 @@ router.get('/:query', (req, res) => {
       return T.get('trends/place', params) // Query Twitter API to get the top trends closest to the entered location
 
     }).then(result => {
-      //setting up key
-      var today = new Date();
-      var ss = String(today.getSeconds());
-      var mm = String(today.getMinutes);
-      var hh = String(today.getHours());
-      var dd = String(today.getDate()).padStart(2, '0');
-      var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-      var yyyy = today.getFullYear();
-      
-      today = yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + mm + ':' + ss;
-      var LocationOfSearch = result.data[0].locations[0].name;
-      s3Key = today +" " + LocationOfSearch;
-      
-      // Configure S3 parameters
-      var params = {
-        Bucket: bucket,
-        Key : s3Key,
-        Body : JSON.stringify(result)
-      };
-      // Upload twitter trends to S3 bucket
-      s3.upload(params, function (err, data) {
-        //handle error
-        if (err) {
-          console.log("Error", err);
-        }
-        //success
-        if (data) {
-          console.log("Uploaded in:", data.Location);
-        }
-      });
-      let numTrends = 10
-      if (result.data[0].trends.length < 10) {
-        numTrends = result.data[0].trends.length
-      }
-      const topTrends = []
-      for (let i = 0; i < numTrends; i++) {
-        topTrends.push(result.data[0].trends[i].name) // Extract the top 10 of the returned trends
-      }
+      addS3(result);
+      topTrends = getTopTrends(result);
       return topTrends; // return the top 10 trends
 
     }).then(result => {
@@ -139,15 +142,7 @@ router.get('/s3get/:query', (req, res) => {
   s3.getObject(params).promise()
   .then(data => {
     const result = JSON.parse(data.Body);
-    //res.json(result);
-    let numTrends = 10
-    if (result.data[0].trends.length < 10) {
-      numTrends = result.data[0].trends.length
-    }
-    const topTrends = []
-    for (let i = 0; i < numTrends; i++) {
-      topTrends.push(result.data[0].trends[i].name) // Extract the top 10 of the returned trends
-    }
+    topTrends = getTopTrends(result);
     return topTrends; // return the top 10 trends
 
   }).then(result => {
