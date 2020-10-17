@@ -20,7 +20,7 @@ const s3 = new AWS.S3();
 const bucket = 'n9801154-trendbing-bucket1';
 
 // Create AWS Elasticache variables
-const endpoint = 'n9801154-trendbing-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com';
+const endpoint = 'mitchredis.km2jzi.ng.0001.apse2.cache.amazonaws.com';
 const cache = redis.createClient({ host: endpoint });
 const expiry = 3600;
 

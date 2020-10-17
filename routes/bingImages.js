@@ -5,7 +5,7 @@ const redis = require('redis');
 const bing = require('node-bing-api')({ accKey: "2e4ead038dae45889f7f713afd5fc008" }); // Set Bing API credentials
 
 // Create AWS Elasticache variables
-const endpoint = 'n9801154-trendbing-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com';
+const endpoint = 'mitchredis.km2jzi.ng.0001.apse2.cache.amazonaws.com';
 const cache = redis.createClient({ host: endpoint });
 
 // bingImages route handler
