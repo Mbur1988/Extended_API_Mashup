@@ -21,8 +21,8 @@ const bucket = 'n9801154-trendbing-bucket1';
 
 // Create AWS Elasticache variables
 const endpoint = 'n9801154-trendbing-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com';
-const cache = redis.createClient();//({ host: endpoint });
-const expiry = 120;//3600;
+const cache = redis.createClient({ host: endpoint });
+const expiry = 3600;
 
 // Configure twit package with Twitter API credentials
 const T = new twit({

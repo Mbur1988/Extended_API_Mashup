@@ -6,7 +6,7 @@ const bing = require('node-bing-api')({ accKey: "2e4ead038dae45889f7f713afd5fc00
 
 // Create AWS Elasticache variables
 const endpoint = 'n9801154-trendbing-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com';
-const cache = redis.createClient();//({ host: endpoint });
+const cache = redis.createClient({ host: endpoint });
 
 // bingImages route handler
 router.get('/:trend/:amount', (req, res) => { 
