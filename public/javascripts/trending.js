@@ -2,7 +2,7 @@
 const fetcher = (event) => {
   const name = event.target.className; // button type
   const trend = event.target.parentElement.firstChild.textContent.substring(1); // parent trend
-  const amount = event.path[1].childNodes[5].value; // amount of results to fetch
+  let amount = event.path[1].childNodes[5].value; // amount of results to fetch
   fetch(`/trending/${name}/${trend}/${amount}`) // fetch requested data from Bing API
     .then((res) => res.json()).then((data) => {
       let canvas = event.path[4].childNodes[1];
@@ -12,13 +12,17 @@ const fetcher = (event) => {
           canvas.childNodes[i].remove(); // remove currently displayed data
         }
       }
+      
+      // Display requested data in canvas window
       let h1 = document.createElement("h1");
       h1.className = "trending";
-      h1.textContent = `Displaying ${name} related to "${trend}"`;
+      h1.textContent = `Displaying ${name} related to: ${trend}`;
       canvas.append(h1);
       // display news if news button was pressed
       if (name == "news") { // check if button press was news
-        for (let story of data.stories) { // iterate through news stories
+        if (data.stories.length < amount) { amount = data.stories.length; }
+        for (let i = 0; i < amount; i++) { // iterate through news stories
+          story = data.stories[i];
           let p = document.createElement("p"); // create p element
           let a = document.createElement("a"); // create a element
           a.href = story.url; // set link url of a element
@@ -28,10 +32,12 @@ const fetcher = (event) => {
         }
       // display images if pics button was pressed
       } else if (name == "pics") { // check if button press was pics
-        for (let story of data.stories) { // iterate through pics
+        if (data.images.length < amount) { amount = data.images.length; }
+        for (let i = 0; i < amount; i++) { // iterate through pics
+          image = data.images[i];
           let img = document.createElement("img"); // create img element 
-          img.src = story.contentUrl; // set source url of img element
-          img.alt = story.name; // set alternate text of img element 
+          img.src = image.contentUrl; // set source url of img element
+          img.alt = image.name; // set alternate text of img element 
           img.height = "200"; // set img height
           canvas.append(" ", img); // append img to document
         }

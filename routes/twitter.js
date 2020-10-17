@@ -3,7 +3,11 @@ const express = require('express');
 const twit = require('twit');
 const AWS = require('aws-sdk');
 const redis = require('redis');
+const bing = require('node-bing-api')({ accKey: "2e4ead038dae45889f7f713afd5fc008" }); // Set Bing API credentials
 const router = express.Router();
+
+const MaxNumTrends = 2;
+const NumResults = 50;
 
 // Configure the AWS environment
 AWS.config.update({
@@ -18,6 +22,7 @@ const bucket = 'n9801154-trendbing-bucket1';
 // Create AWS Elasticache variables
 const endpoint = 'n9801154-trendbing-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com';
 const cache = redis.createClient({ host: endpoint });
+const expiry = 3600;
 
 // Configure twit package with Twitter API credentials
 const T = new twit({
@@ -27,21 +32,26 @@ const T = new twit({
   access_token_secret: 'RiSn6jXAi0WA9NHJCxmYM8bNnFYdQJLTPgGqnCFlERfnp'
 })
 
+// Print redis errors to the console
+cache.on('error', (err) => {
+  console.log("Error " + err);
+});
+
 // Extracts the top trends from the result
-function getTopTrends(result) {
-  let numTrends = 10
-  if (result.data[0].trends.length < 10) {
-    numTrends = result.data[0].trends.length
+function GetTopTrends(result) {
+  let NumTrends = MaxNumTrends;
+  if (result.data[0].trends.length < MaxNumTrends) {
+    NumTrends = result.data[0].trends.length
   }
   const topTrends = []
-  for (let i = 0; i < numTrends; i++) {
+  for (let i = 0; i < NumTrends; i++) {
     topTrends.push(result.data[0].trends[i].name) // Extract the top 10 of the returned trends
   }
   return topTrends; // return the top 10 trends
 }
 
 // Add entry to S3 storage
-function addS3(result) {
+function AddS3(result) {
   //setting up key
   let date = new Date();
   let sec = String(date.getSeconds()).padStart(2, '0');
@@ -63,7 +73,6 @@ function addS3(result) {
   };
   // Upload twitter trends to S3 bucket
   s3.upload(params, function (err, data) {
-  cache.setex(LocationOfSearch, 3600, JSON.stringify(result));
     //handle error
     if (err) {
       console.log("Error", err);
@@ -75,14 +84,26 @@ function addS3(result) {
   });
 }
 
+function PopulateCache(trend) {  
+  let params = { count: NumResults } // Set params
+  bing.news(trend, params, function (error, resp, data) { // Query Bing images API to get images for trend
+    let result = data.value;
+    cache.setex(trend + " News", expiry, JSON.stringify(result));
+    bing.images(trend, params, function (error, resp, data) { // Query Bing images API to get images for trend
+      let result = data.value;
+      cache.setex(trend + " Pics", expiry, JSON.stringify(result));
+    })
+  })  
+}
+
 // Trends route handler for blank input
 router.get('/', function (req, res, next) {
   let params = { id: 1, exclude: 'hashtags' } // Set params
   return T.get('trends/place', params) // Query Twitter API to get the top trends worldwide
 
     .then(result => {
-      addS3(result);
-      topTrends = getTopTrends(result);
+      AddS3(result);
+      topTrends = GetTopTrends(result);
       return topTrends; // return the top 10 trends
 
     }).then(result => { // Render the trending page
@@ -91,7 +112,9 @@ router.get('/', function (req, res, next) {
         title: 'Trending Worldwide',
         location: 'the World'
       });
-
+      for (trend in topTrends) {
+        PopulateCache(topTrends[trend]);
+      }
     }).catch(function (err) {
       console.log('caught error', err.stack)
     })
@@ -124,8 +147,8 @@ router.get('/:query', (req, res) => {
       return T.get('trends/place', params) // Query Twitter API to get the top trends closest to the entered location
 
     }).then(result => {
-      addS3(result);
-      topTrends = getTopTrends(result);
+      AddS3(result);
+      topTrends = GetTopTrends(result);
       return topTrends; // return the top 10 trends
 
     }).then(result => {
@@ -134,7 +157,9 @@ router.get('/:query', (req, res) => {
         title: 'Trending in ' + req.params.query,
         location: req.params.query
       });
-
+      for (trend in topTrends) {
+        PopulateCache(topTrends[trend]);
+      }
     }).catch(function (err) { // catch any errors
       console.log('caught error', err.stack)
     })
@@ -148,7 +173,7 @@ router.get('/s3get/:query', (req, res) => {
   s3.getObject(params).promise()
   .then(data => {
     const result = JSON.parse(data.Body);
-    topTrends = getTopTrends(result);
+    topTrends = GetTopTrends(result);
     return topTrends; // return the top 10 trends
 
   }).then(result => {
@@ -157,6 +182,9 @@ router.get('/s3get/:query', (req, res) => {
       title: 'Trending in ' + req.params.query,
       location: req.params.query
     });
+    for (trend in topTrends) {
+      PopulateCache(topTrends[trend]);
+    }
   });
 });
 
