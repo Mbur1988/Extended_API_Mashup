@@ -2,6 +2,7 @@ const createError = require('http-errors');
 const express = require('express');
 const twit = require('twit');
 const AWS = require('aws-sdk');
+const redis = require('redis');
 const router = express.Router();
 
 // Configure the AWS environment
@@ -13,6 +14,10 @@ AWS.config.update({
 // Create AWS S3 varaibles
 const s3 = new AWS.S3();
 const bucket = 'n9801154-trendbing-bucket1';
+
+// Create AWS Elasticache variables
+const endpoint = 'n9801154-trendbing-redis.km2jzi.ng.0001.apse2.cache.amazonaws.com';
+const cache = redis.createClient({ host: endpoint });
 
 // Configure twit package with Twitter API credentials
 const T = new twit({
@@ -58,6 +63,7 @@ function addS3(result) {
   };
   // Upload twitter trends to S3 bucket
   s3.upload(params, function (err, data) {
+  cache.setex(LocationOfSearch, 3600, JSON.stringify(result));
     //handle error
     if (err) {
       console.log("Error", err);
