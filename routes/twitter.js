@@ -3,10 +3,10 @@ const express = require('express');
 const twit = require('twit');
 const AWS = require('aws-sdk');
 const redis = require('redis');
-const bing = require('node-bing-api')({ accKey: "2e4ead038dae45889f7f713afd5fc008" }); // Set Bing API credentials
+const bing = require('node-bing-api')({ accKey: "532aa70654bf49488baf4112120a9599" }); // Set Bing API credentials
 const router = express.Router();
 
-const MaxNumTrends = 2;
+const MaxNumTrends = 5;
 const NumResults = 50;
 
 // Configure the AWS environment

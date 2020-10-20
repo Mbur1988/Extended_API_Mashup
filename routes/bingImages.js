@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const redis = require('redis');
 
-const bing = require('node-bing-api')({ accKey: "2e4ead038dae45889f7f713afd5fc008" }); // Set Bing API credentials
+const bing = require('node-bing-api')({ accKey: "532aa70654bf49488baf4112120a9599" }); // Set Bing API credentials
 
 // Create AWS Elasticache variables
 const endpoint = 'mitchredis.km2jzi.ng.0001.apse2.cache.amazonaws.com';
