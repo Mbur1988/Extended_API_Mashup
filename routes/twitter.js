@@ -6,6 +6,7 @@ const redis = require('redis');
 const bing = require('node-bing-api')({ accKey: "532aa70654bf49488baf4112120a9599" }); // Set Bing API credentials
 const router = express.Router();
 
+// Set global parameters
 const MaxNumTrends = 5;
 const NumResults = 50;
 
@@ -52,7 +53,7 @@ function GetTopTrends(result) {
 
 // Add entry to S3 storage
 function AddS3(result) {
-  //setting up key
+  // Setting up key
   let date = new Date();
   let sec = String(date.getSeconds()).padStart(2, '0');
   let min = String(date.getMinutes()).padStart(2, '0');
@@ -60,7 +61,7 @@ function AddS3(result) {
   let day = String(date.getDate()).padStart(2, '0');
   let month = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
   let year = String(date.getFullYear()).padStart(2, '0');
-  
+   
   let today = year + '-' + month + '-' + day + ' ' + hour + ':' + min + ':' + sec;
   var LocationOfSearch = result.data[0].locations[0].name;
   s3Key = today +" " + LocationOfSearch;
@@ -84,6 +85,7 @@ function AddS3(result) {
   });
 }
 
+// Retrieve image and newws data from API endpoints and add to Redis cache
 function PopulateCache(trend) {  
   let params = { count: NumResults } // Set params
   bing.news(trend, params, function (error, resp, data) { // Query Bing images API to get images for trend
@@ -113,8 +115,9 @@ router.get('/', function (req, res, next) {
         location: 'the World'
       });
       for (trend in topTrends) {
-        PopulateCache(topTrends[trend]);
+        PopulateCache(topTrends[trend]); // Retrieve news and image data and add to cache
       }
+    // Catch any exceptions
     }).catch(function (err) {
       console.log('caught error', err.stack)
     })
@@ -158,15 +161,17 @@ router.get('/:query', (req, res) => {
         location: req.params.query
       });
       for (trend in topTrends) {
-        PopulateCache(topTrends[trend]);
+        PopulateCache(topTrends[trend]); // Retrieve news and image data and add to cache
       }
+    // Catch any exceptions
     }).catch(function (err) { // catch any errors
       console.log('caught error', err.stack)
     })
 });
 
+// Trends route handler for S3 storage entry
 router.get('/s3get/:query', (req, res) => {
-  let params = {
+  let params = { // Set params
     Bucket: bucket,
     Key: req.params.query
   };
@@ -183,7 +188,7 @@ router.get('/s3get/:query', (req, res) => {
       location: req.params.query
     });
     for (trend in topTrends) {
-      PopulateCache(topTrends[trend]);
+      PopulateCache(topTrends[trend]); // Retrieve news and image data and add to cache
     }
   });
 });
